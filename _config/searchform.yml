@@ -3,7 +3,7 @@ Name: IndexedSearchFormConfig
 ---
 
 # Customise the search behaviour for SearchForm
-Toast\IndexedSearch\SearchForm:
+# Toast\IndexedSearch\SearchForm:
   # Filter classes to search
   # search_classes:
   # - Page
