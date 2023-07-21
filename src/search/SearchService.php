@@ -234,7 +234,7 @@ class SearchService
 
     private function getFulltextQuery($input, $fuzzy = false)
     {
-        $reservedChars = ['%', '+', '!', '(', ')', '~', '*', '"', "'", "-"];
+        $reservedChars = ['%', '+', '!', '(', ')', '~', '*', '"', "'", "-", "@"];
         $cleanQuery = str_replace($reservedChars, ' ', $input);
 
         if ($fuzzy) {
