@@ -22,8 +22,11 @@ class SearchService
     {
         $query = strtolower(!$query ? ' ' : $query);        
         $query = trim(preg_replace('/\s+/', ' ', $query));
+        $query = $query ? strip_tags($query) : $query;
 
-        $isEmptyQuery = !$query && $allowEmptyQuery;
+        $queryCheck = $this->getFulltextQuery(Convert::raw2sql($query));
+
+        $isEmptyQuery = !$queryCheck && $allowEmptyQuery;
         
         $fulltextSelectDatabaseQueryPart = null;
         $fulltextWhereDatabaseQueryPart = null;
@@ -244,7 +247,10 @@ class SearchService
             return implode(' ', $parts);
         }
 
-        return str_replace(' ', '* ', $cleanQuery) . '*';
+        $query = str_replace(' ', '* ', $cleanQuery) . '*';
+        $query = str_replace(' *', '', $query);
+
+        return $query;
     }
 
 
