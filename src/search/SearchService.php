@@ -249,6 +249,7 @@ class SearchService
 
         $query = str_replace(' ', '* ', $cleanQuery) . '*';
         $query = str_replace(' *', '', $query);
+        $query = $query == '*' ? '' : $query;
 
         return $query;
     }
