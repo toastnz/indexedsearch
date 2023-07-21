@@ -1,0 +1,31 @@
+---
+Name: IndexedSearchFormConfig
+---
+
+# Customise the search behaviour for SearchForm
+Toast\IndexedSearch\SearchForm:
+  # Filter classes to search
+  # search_classes:
+  # - Page
+
+  # Boost the score
+  # The higher the number, the higher the score
+  # The default value for all fields is zero
+  # boost_fields:  
+  #   - Title: 1
+  #   - Content: 0.8
+
+  # Boost classes
+  # Subclasses of indexed classes can also be specified
+  # The higher the number, the higher the score
+  # The default value for all classes is zero
+  # boost_classes:
+  #   Page: 1
+
+  # Pagination
+  # enable_pagination: true
+  # results_per_page: 10
+
+  # When subsite filter is enabled, the following classes will be excluded
+  # disable_subsite_filter_classes:
+  #  - HomePage

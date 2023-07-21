@@ -1,0 +1,12 @@
+---
+Name: IndexedSearchExtensions
+After: '*'
+---
+
+SilverStripe\ORM\DataObject:
+  extensions:
+    - Toast\IndexedSearch\DataObjectExtension
+
+SilverStripe\CMS\Controllers\ContentController:
+  extensions:
+    - Toast\IndexedSearch\ContentControllerExtension

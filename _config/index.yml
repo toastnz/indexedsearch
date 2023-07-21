@@ -1,0 +1,55 @@
+---
+Name: IndexedSearchIndexConfig
+---
+
+# Toast\IndexedSearch\SearchIndex:
+  # The classes to be indexed.
+  # Subclasses will be included, except for the ones specified in exclude_classes)
+  # Defaults to SiteTree:class and its subclasses.
+  #
+  # index_classes:
+  #  - SiteTree
+
+  # The classes to be excluded from indexing
+  # Defaults to ErrorPage:class
+  #
+  # exclude_classes:
+  #   - SilverStripe\ErrorPage\ErrorPage
+
+  # The fields to be indexed (apply to all classes):
+  #
+  # index_fields:
+  #  - Title
+  #  - MenuTitle
+  #  - Content
+  #
+  # Use dot notation to index fields on relations:
+  # eg.:
+  # - Blocks.Items.Title
+  #
+  # Or underscore to index fields of specific classes:
+  # - Pages\HomePage_MetaDescription
+  # - Pages\HomePage_Slides.Title
+
+  # Add all the fields you want to display in the search results here
+  # to avoid having to do a second query to get the data.
+  # * The ID and ClassName fields are always included.
+  # * Fields that don't exist on a given object will return as "null".
+  # * Either fields or functions can be specified.
+  #
+  # data_fields:
+  #  - Title
+  #  - Summary
+  #  - ImageURL
+  #  - Link
+
+  # The variable or function name from the top level object that
+  # must return "true" for the object to be indexed
+  # searchable_flag_check: ShowInSearch
+
+  # Whether to allow empty queries to return all results
+  # search_allow_empty_query: false
+
+  # Whether to disable subsite filters
+  # search_disable_subsite_filters: false
+
