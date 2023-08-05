@@ -119,8 +119,7 @@ class SearchService
         // Build result set
         $results = ArrayList::create();
         
-        foreach($dbEntries as $entry) {
-            $entries[] = $entry;
+        foreach($dbEntries as $entry) {            
 
             // Apply filters
             if ($filters && !$this->passFilters($entry['FilterableData'], $filters)) {
@@ -178,6 +177,7 @@ class SearchService
                     ]);
 
                     $results->push(ArrayData::create($data));
+                    $entries[] = $entry;
                 }
             }
 
