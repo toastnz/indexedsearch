@@ -33,6 +33,8 @@ class SearchIndex
 
     private static $search_allow_empty_query = false;
 
+    private static $search_split_special_chars = true;
+
     public static $summary_separator = ' ';
 
     protected static $index_data = [];
@@ -404,13 +406,14 @@ class SearchIndex
         $disableSubsiteFilterClasses = $this->getDisableSubsiteFilterClasses();
         $allowEmptyQuery = self::config()->get('search_allow_empty_query') ?? false;
         $disableSubsiteFilter = self::config()->get('search_disable_subsite_filter') ?? false;
+        $splitSpecialChars = self::config()->get('search_split_special_chars') ?? true;
 
         $searchServiceClass = SearchService::class;
         $this->extend('updateSearchServiceClass', $searchServiceClass);
 
         $searchService = singleton($searchServiceClass);
         
-        $result = $searchService->doSearch($query, $searchClasses, $boostFields, $boostClasses, $fuzzy, $filters, $allowEmptyQuery, $disableSubsiteFilter, $disableSubsiteFilterClasses);
+        $result = $searchService->doSearch($query, $searchClasses, $boostFields, $boostClasses, $fuzzy, $filters, $allowEmptyQuery, $disableSubsiteFilter, $disableSubsiteFilterClasses, $splitSpecialChars);
 
         if ($filterDataFields && ($indexFields = $this->getIndexFields())) {
             $missingFields = array_diff(array_keys($filterDataFields), $indexFields);

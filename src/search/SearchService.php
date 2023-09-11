@@ -18,13 +18,13 @@ class SearchService
     use Configurable;
     use Extensible;
 
-    public function doSearch($query, $classes = null, $boostFields = null, $boostClasses = null, $fuzzy = false, $filters = null, $allowEmptyQuery = false, $disableSubsiteFilter = false, $disableSubsiteFilterClasses = null)
+    public function doSearch($query, $classes = null, $boostFields = null, $boostClasses = null, $fuzzy = false, $filters = null, $allowEmptyQuery = false, $disableSubsiteFilter = false, $disableSubsiteFilterClasses = null, $splitSpecialChars = true)
     {
         $query = strtolower(!$query ? ' ' : $query);        
         $query = trim(preg_replace('/\s+/', ' ', $query));
         $query = $query ? strip_tags($query) : $query;
 
-        $queryCheck = $this->getFulltextQuery(Convert::raw2sql($query));
+        $queryCheck = $this->getFulltextQuery(Convert::raw2sql($query), false, $splitSpecialChars);
 
         $isEmptyQuery = !$queryCheck && $allowEmptyQuery;
         
@@ -35,8 +35,8 @@ class SearchService
 
             if ($fuzzy) {
                 // Fuzzy search
-                $fuzzyQuery = $this->getFulltextQuery(Convert::raw2sql($query), true);
-                $fulltextQuery = $this->getFulltextQuery(Convert::raw2sql($query));
+                $fuzzyQuery = $this->getFulltextQuery(Convert::raw2sql($query), true, $splitSpecialChars);
+                $fulltextQuery = $this->getFulltextQuery(Convert::raw2sql($query), false, $splitSpecialChars);
 
                 $fulltextSelectDatabaseQueryPart = '
                     (
@@ -52,7 +52,7 @@ class SearchService
                 
             } else {
                 // Fulltext search
-                $fulltextQuery = $this->getFulltextQuery(Convert::raw2sql($query));
+                $fulltextQuery = $this->getFulltextQuery(Convert::raw2sql($query), false, $splitSpecialChars);
 
                 $fulltextSelectDatabaseQueryPart = 'MATCH(RawData) AGAINST(\'' . $fulltextQuery . '\' IN BOOLEAN MODE) AS Similarity';
                 $fulltextWhereDatabaseQueryPart = 'MATCH(RawData) AGAINST(\'' . $fulltextQuery . '\' IN BOOLEAN MODE)';
@@ -232,10 +232,24 @@ class SearchService
         return true;
     }    
 
-    private function getFulltextQuery($input, $fuzzy = false)
+    private function getFulltextQuery($input, $fuzzy = false, $splitSpecialChars = true)
     {
         $reservedChars = ['%', '+', '!', '(', ')', '~', '*', '"', "'", "-", "@"];
-        $cleanQuery = str_replace($reservedChars, ' ', $input);
+
+        if ($splitSpecialChars) {
+            $cleanQuery = str_replace($reservedChars, ' ', $input);
+            
+        } else {
+            foreach($reservedChars as $reservedChar) {
+                $cleanQuery = str_replace($reservedChar, '\\' . $reservedChar, $input);
+            }
+
+            foreach($reservedChars as $reservedChar) {
+                if (str_ends_with($cleanQuery, $reservedChar)) {
+                    $cleanQuery = substr($cleanQuery, 0, -1);
+                }
+            }
+        }
 
         if ($fuzzy) {
             $parts = [];
