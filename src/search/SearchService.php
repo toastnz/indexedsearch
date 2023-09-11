@@ -112,7 +112,7 @@ class SearchService
         ';
 
         $this->extend('updateDatabaseQuery', $databaseQuery);
-        
+
         $dbEntries = DB::query($databaseQuery);
         $entries = [];
         
@@ -234,15 +234,13 @@ class SearchService
 
     private function getFulltextQuery($input, $fuzzy = false, $splitSpecialChars = true)
     {
-        $reservedChars = ['%', '+', '!', '(', ')', '~', '*', '"', "'", "-", "@"];
+        $reservedChars = ['%', '+', '!', '(', ')', '~', '*', '"', "'", "-", "@", "\\"];
 
         if ($splitSpecialChars) {
             $cleanQuery = str_replace($reservedChars, ' ', $input);
             
         } else {
-            foreach($reservedChars as $reservedChar) {
-                $cleanQuery = str_replace($reservedChar, '\\' . $reservedChar, $input);
-            }
+            $cleanQuery = $input;
 
             foreach($reservedChars as $reservedChar) {
                 if (str_ends_with($cleanQuery, $reservedChar)) {
@@ -261,12 +259,21 @@ class SearchService
             return implode(' ', $parts);
         }
 
+        $containsSpecialChars = false;
+
+        foreach($reservedChars as $reservedChar) {
+            if (str_contains($cleanQuery, $reservedChar)) {
+                $containsSpecialChars = true;
+                break;
+            }
+        }
+
         $query = str_replace(' ', '* ', $cleanQuery) . '*';
         $query = str_replace(' *', '', $query);
         $query = $query == '*' ? '' : $query;
 
-        return $query;
+        return $containsSpecialChars ? '"' . $query . '"' : $query;
+        
     }
-
 
 }
