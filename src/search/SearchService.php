@@ -18,7 +18,7 @@ class SearchService
     use Configurable;
     use Extensible;
 
-    public function doSearch($query, $classes = null, $boostFields = null, $boostClasses = null, $fuzzy = false, $filters = null, $allowEmptyQuery = false, $disableSubsiteFilter = false, $disableSubsiteFilterClasses = null, $splitSpecialChars = true)
+    public function doSearch($query, $classes = null, $boostFields = null, $boostClasses = null, $fuzzy = false, $filters = null, $allowEmptyQuery = false, $disableSubsiteFilter = false, $disableSubsiteFilterClasses = null, $splitSpecialChars = true, $extraExcludedClasses = null)
     {
         $query = strtolower(!$query ? ' ' : $query);        
         $query = trim(preg_replace('/\s+/', ' ', $query));
@@ -65,6 +65,15 @@ class SearchService
         if ($classes) {            
             $classesToSearch = [];
             $excludedClasses = Config::inst()->get(SearchIndex::class, 'exclude_classes');
+
+            if (!is_array($excludedClasses)) {
+                $excludedClasses = [];
+            }
+
+            if ($extraExcludedClasses) {
+                $excludedClasses = array_merge($excludedClasses, $extraExcludedClasses);
+                $excludedClasses = array_unique($excludedClasses);
+            }
 
             foreach($classes as $class) {
                 foreach(ClassInfo::subclassesFor($class) as $subClass) {

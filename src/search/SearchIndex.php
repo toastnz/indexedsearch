@@ -53,6 +53,8 @@ class SearchIndex
 
     private $disableSubsiteFilterClasses = null;
 
+    private $searchExcludeClasses = null;
+
     
     public function doIndex()
     {
@@ -400,6 +402,7 @@ class SearchIndex
         $searchClasses = $searchClasses ?: $this->getSearchClasses();
         $boostFields = $boostFields ?: $this->getSearchBoostFields();
         $boostClasses = $boostClasses ?: $this->getSearchBoostClasses();
+        $excludeClasses = $this->getSearchExcludeClasses();
         $filterDataFields = $filterDataFields ?: $this->getSearchFilterableFields();
         $filters = $filters ?: $this->getSearchFilters();
         $fuzzy = $fuzzy ?: $this->getSearchFuzzy();
@@ -413,7 +416,7 @@ class SearchIndex
 
         $searchService = singleton($searchServiceClass);
         
-        $result = $searchService->doSearch($query, $searchClasses, $boostFields, $boostClasses, $fuzzy, $filters, $allowEmptyQuery, $disableSubsiteFilter, $disableSubsiteFilterClasses, $splitSpecialChars);
+        $result = $searchService->doSearch($query, $searchClasses, $boostFields, $boostClasses, $fuzzy, $filters, $allowEmptyQuery, $disableSubsiteFilter, $disableSubsiteFilterClasses, $splitSpecialChars, $excludeClasses);
 
         if ($filterDataFields && ($indexFields = $this->getIndexFields())) {
             $missingFields = array_diff(array_keys($filterDataFields), $indexFields);
@@ -531,6 +534,17 @@ class SearchIndex
     public function getSearchClasses()
     {
         return $this->searchClasses;
+    }
+
+    public function getSearchExcludeClasses()
+    {
+        return $this->searchExcludeClasses;
+    }
+
+    public function setSearchExcludeClasses(array $classes)
+    {
+        $this->searchExcludeClasses = $classes;
+        return $this;
     }
 
     public function setSearchBoostFields(array $boostFields)
