@@ -44,6 +44,8 @@ class SearchIndex
     private $searchBoostFields = null;
 
     private $searchBoostClasses = null;
+
+    private $searchRankFields = null;
     
     private $searchFilterableFields = null;
 
@@ -397,11 +399,12 @@ class SearchIndex
         return implode(' ', $output);
     }
 
-    public function search($query, array $searchClasses = null, array $boostFields = null, array $boostClasses = null, $fuzzy = false, array $filterDataFields = null, array $filters = null)
+    public function search($query, array $searchClasses = null, array $boostFields = null, array $boostClasses = null, $fuzzy = false, array $filterDataFields = null, array $filters = null, $rankFields = null)
     {
         $searchClasses = $searchClasses ?: $this->getSearchClasses();
         $boostFields = $boostFields ?: $this->getSearchBoostFields();
         $boostClasses = $boostClasses ?: $this->getSearchBoostClasses();
+        $rankFields = $rankFields ?: $this->getSearchRankFields();
         $excludeClasses = $this->getSearchExcludeClasses();
         $filterDataFields = $filterDataFields ?: $this->getSearchFilterableFields();
         $filters = $filters ?: $this->getSearchFilters();
@@ -487,20 +490,28 @@ class SearchIndex
             ]));
         }
 
-        if ($boostFields) {            
+        $sortFields = [];
+
+        if ($rankFields && is_array($rankFields)) {
+            foreach($rankFields as $rankField) {
+                $sortFields[$rankField] = 'DESC';
+            }
+        }
+
+        if ($boostFields) {
+            $sortFields['Search___ClassScore'] = 'DESC';
+            $sortFields['Search___BoostSimilarity'] = 'DESC';
+            $sortFields['Search___Similarity'] = 'DESC';
+
             $result->Matches = $result->Matches
-                ->sort([
-                    'Search___ClassScore' => 'DESC',
-                    'Search___BoostSimilarity' => 'DESC',
-                    'Search___Similarity' => 'DESC'
-                ]);
+                ->sort($sortFields);
 
         } else {
+            $sortFields['Search___ClassScore'] = 'DESC';
+            $sortFields['Search___Similarity'] = 'DESC';
+
             $result->Matches = $result->Matches
-                ->sort([
-                    'Search___ClassScore' => 'DESC',
-                    'Search___Similarity' => 'DESC'
-                ]);
+                ->sort($sortFields);
         }
 
         return ArrayData::create([
@@ -562,6 +573,17 @@ class SearchIndex
     {
         $this->searchBoostClasses = $boostClasses;
         return $this;
+    }
+
+    public function setSearchRankFields(array $rankFields)
+    {
+        $this->searchRankFields = $rankFields;
+        return $this;
+    }
+
+    public function getSearchRankFields()
+    {
+        return $this->searchRankFields;
     }
 
     public function getSearchBoostClasses()

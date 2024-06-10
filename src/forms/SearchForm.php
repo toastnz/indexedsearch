@@ -18,6 +18,8 @@ class SearchForm extends Form
 
     private static $search_classes = [];
 
+    private static $rank_fields = [];
+
     private static $results_per_page = 10;
 
     private static $enable_pagination = true;
@@ -49,11 +51,12 @@ class SearchForm extends Form
     }
 
 
-    public function getResults($searchClasses = null, $boostFields = null, $boostClasses = null)
+    public function getResults($searchClasses = null, $boostFields = null, $boostClasses = null, $rankFields = null)
     {
         $searchClasses = $searchClasses ?: ($this->config()->get('search_classes') ?: [SiteTree::class]);
         $boostFields = $boostFields ?: ($this->config()->get('boost_fields') ?: []);
         $boostClasses = $boostClasses ?: ($this->config()->get('boost_classes') ?: []);
+        $rankFields = $rankFields ?: ($this->config()->get('rank_fields') ?: []);
         $disableSubsiteFilterClasses = $this->config()->get('disable_subsite_filter_classes') ?: null;
 
         $request = $this->getRequestHandler()->getRequest();
