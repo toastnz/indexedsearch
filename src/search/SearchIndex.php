@@ -494,7 +494,7 @@ class SearchIndex
 
         if ($rankFields && is_array($rankFields)) {
             foreach($rankFields as $rankField) {
-                $sortFields[$rankField] = 'DESC';
+                $sortFields[$rankField] = 'ASC';
             }
         }
 
@@ -503,16 +503,14 @@ class SearchIndex
             $sortFields['Search___BoostSimilarity'] = 'DESC';
             $sortFields['Search___Similarity'] = 'DESC';
 
-            $result->Matches = $result->Matches
-                ->sort($sortFields);
-
         } else {
             $sortFields['Search___ClassScore'] = 'DESC';
             $sortFields['Search___Similarity'] = 'DESC';
 
-            $result->Matches = $result->Matches
-                ->sort($sortFields);
         }
+
+        $result->Matches = $result->Matches
+            ->sort($sortFields);
 
         return ArrayData::create([
             'Matches' => $result->Matches,
