@@ -2,7 +2,6 @@
 
 namespace Toast\IndexedSearch;
 
-use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\DataList;
 use SilverStripe\ORM\ArrayList;
@@ -11,10 +10,12 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\View\ArrayData;
 use SilverStripe\Core\Extensible;
 use SilverStripe\Control\Director;
+use SilverStripe\CMS\Model\SiteTree;
+use SilverStripe\ErrorPage\ErrorPage;
 use SilverStripe\Versioned\Versioned;
+use SilverStripe\CMS\Model\RedirectorPage;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Injector\Injectable;
-use SilverStripe\ErrorPage\ErrorPage;
 use SilverStripe\View\Parsers\ShortcodeParser;
 
 class SearchIndex
@@ -56,6 +57,8 @@ class SearchIndex
     private $disableSubsiteFilterClasses = null;
 
     private $searchExcludeClasses = null;
+
+    private $searchScoreSortSequence = ['class', 'field', 'similarity'];
 
     
     public function doIndex()
@@ -123,6 +126,7 @@ class SearchIndex
 
         $values = [];
         $valuesFilterable = [];
+        $searchFieldExclusions = [];
 
         foreach($this->getIndexFields() as $fieldData) {
 
@@ -137,6 +141,12 @@ class SearchIndex
             } else {
                 $field = $fieldData;
             }
+
+            if (substr($field, -1) === '*') {
+                $field = substr($field, 0, -1);
+                $searchFieldExclusions[] = $field;
+            }
+
 
             $valuesForPath = $this->getValuesForPath($object, $field);
             $values[$field] = $valuesForPath[$field];
@@ -164,7 +174,7 @@ class SearchIndex
         ];        
 
         $entry->IndexData = json_encode($values);
-        $entry->RawData = trim($this->getRawDataFromValues($values));
+        $entry->RawData = trim($this->getRawDataFromValues($values, $searchFieldExclusions));
         $entry->FuzzyData = $this->makeFuzzyData($entry->RawData);
         $entry->FilterableData = json_encode($valuesFilterable);
         $entry->SubsiteID = isset($object->SubsiteID) ? (int)$object->SubsiteID : -1;
@@ -185,7 +195,7 @@ class SearchIndex
                     throw new \Exception('Data field "' . $dataField . '" must be a string, numeric or boolean value.');
                 }
 
-                $data[$dataField] = $dataValue ? str_replace(['?stage=Live', '&stage=Live'], '', $dataValue) : $dataValue;
+                $data[$dataField] = $dataValue ? str_replace(['?stage=Stage', '&stage=Stage', '?stage=Live', '&stage=Live'], '', $dataValue) : $dataValue;
             }
         }
 
@@ -373,12 +383,14 @@ class SearchIndex
         return $string;
     }
 
-    private function getRawDataFromValues(array $values)
+    private function getRawDataFromValues(array $values, array $exclusions = [])
     {
         $output = '';
 
-        foreach($values['IndexData'] as $value) {
-            $output .= self::$summary_separator . $value;
+        foreach($values['IndexData'] as $field => $value) {
+            if (!in_array($field, $exclusions)) {
+                $output .= self::$summary_separator . $value;
+            }
         }
 
         return $output;
@@ -399,7 +411,7 @@ class SearchIndex
         return implode(' ', $output);
     }
 
-    public function search($query, array $searchClasses = null, array $boostFields = null, array $boostClasses = null, $fuzzy = false, array $filterDataFields = null, array $filters = null, $rankFields = null)
+    public function search($query, array $searchClasses = null, array $boostFields = null, array $boostClasses = null, $fuzzy = false, array $filterDataFields = null, array $filters = null, $rankFields = null, $searchScoreSortSequence = null)
     {
         $searchClasses = $searchClasses ?: $this->getSearchClasses();
         $boostFields = $boostFields ?: $this->getSearchBoostFields();
@@ -410,6 +422,7 @@ class SearchIndex
         $filters = $filters ?: $this->getSearchFilters();
         $fuzzy = $fuzzy ?: $this->getSearchFuzzy();
         $disableSubsiteFilterClasses = $this->getDisableSubsiteFilterClasses();
+        $searchScoreSortSequence = $this->getSearchScoreSortSequence();
         $allowEmptyQuery = self::config()->get('search_allow_empty_query') ?? false;
         $disableSubsiteFilter = self::config()->get('search_disable_subsite_filter') ?? false;
         $splitSpecialChars = self::config()->get('search_split_special_chars') ?? true;
@@ -499,14 +512,22 @@ class SearchIndex
         }
 
         if ($boostFields) {
-            $sortFields['Search___ClassScore'] = 'DESC';
-            $sortFields['Search___BoostSimilarity'] = 'DESC';
-            $sortFields['Search___Similarity'] = 'DESC';
-
+            $scoreSortMap = [
+                'class' => 'Search___ClassScore',
+                'field' => 'Search___BoostSimilarity',
+                'similarity' => 'Search___Similarity'
+            ];    
         } else {
-            $sortFields['Search___ClassScore'] = 'DESC';
-            $sortFields['Search___Similarity'] = 'DESC';
+            $scoreSortMap = [
+                'class' => 'Search___ClassScore',
+                'similarity' => 'Search___Similarity'
+            ];
+        }
 
+        foreach($searchScoreSortSequence as $sortField) {
+            if (isset($scoreSortMap[$sortField])) {
+                $sortFields[$scoreSortMap[$sortField]] = 'DESC';
+            }
         }
 
         $result->Matches = $result->Matches
@@ -582,6 +603,17 @@ class SearchIndex
     public function getSearchRankFields()
     {
         return $this->searchRankFields;
+    }
+
+    public function getSearchScoreSortSequence()
+    {
+        return $this->searchScoreSortSequence;
+    }
+
+    public function setSearchScoreSortSequence(array $sequence)
+    {
+        $this->searchScoreSortSequence = $sequence;
+        return $this;
     }
 
     public function getSearchBoostClasses()
