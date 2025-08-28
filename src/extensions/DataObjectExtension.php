@@ -2,10 +2,10 @@
 
 namespace Toast\IndexedSearch;
 
-use SilverStripe\ORM\DataExtension;
+use SilverStripe\Core\Extension;
 use SilverStripe\Versioned\Versioned;
 
-class DataObjectExtension extends DataExtension
+class DataObjectExtension extends Extension
 {
 
     public function onAfterWrite()
