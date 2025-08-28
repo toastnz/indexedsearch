@@ -2,28 +2,32 @@
 
 namespace Toast\IndexedSearch;
 
-use SilverStripe\Control\Director;
 use SilverStripe\Dev\BuildTask;
+use SilverStripe\Control\Director;
+use SilverStripe\PolyExecution\PolyOutput;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
 
 
 class IndexedSearchReindexTask extends BuildTask
 {
-    private static $segment = 'IndexedSearchReindexTask';
+    protected static string $commandName = 'IndexedSearchReindexTask';
 
-    protected $title = 'Indexed Search: Reindex search data';
+    protected string $title = 'Indexed Search: Reindex search data';
 
-    protected $description = 'Reindex all search data based on the current index configuration';
+    protected static string $description = 'Reindex all search data based on the current index configuration';
 
-    public function run($request)
+    protected function execute(InputInterface $input, PolyOutput $output): int
     {
         if (!Director::is_cli()) {
             echo 'This task can cannot be run from the browser.';
-            return;
+            return Command::FAILURE;
         }
         
         singleton(SearchIndex::class)->doIndex();
 
         echo PHP_EOL .'Finished.' . PHP_EOL;
+        return Command::SUCCESS;
     }
 
 }
