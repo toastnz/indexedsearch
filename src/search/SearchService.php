@@ -4,11 +4,11 @@ namespace Toast\IndexedSearch;
 
 use SilverStripe\ORM\DB;
 use SilverStripe\Core\Convert;
+use SilverStripe\ORM\ArrayList;
 use SilverStripe\Core\ClassInfo;
+use SilverStripe\View\ArrayData;
 use SilverStripe\Core\Extensible;
-use SilverStripe\Model\ArrayData;
 use SilverStripe\Core\Config\Config;
-use SilverStripe\Model\List\ArrayList;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Injector\Injectable;
 
