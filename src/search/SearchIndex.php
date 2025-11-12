@@ -4,7 +4,6 @@ namespace Toast\IndexedSearch;
 
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\DataList;
-use SilverStripe\ORM\ArrayList;
 use SilverStripe\Core\ClassInfo;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\View\ArrayData;
@@ -13,6 +12,7 @@ use SilverStripe\Control\Director;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\ErrorPage\ErrorPage;
 use SilverStripe\Versioned\Versioned;
+use SilverStripe\Model\List\ArrayList;
 use SilverStripe\CMS\Model\RedirectorPage;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Injector\Injectable;
