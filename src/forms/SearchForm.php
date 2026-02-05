@@ -112,4 +112,9 @@ class SearchForm extends Form
     {
         return $this->getRequestHandler()->getRequest()->requestVar('Search');
     }
+
+    public function classesToSearch()
+    {
+        return $this->config()->get('search_classes') ?: [SiteTree::class];
+    }
 }
