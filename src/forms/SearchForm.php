@@ -8,6 +8,8 @@ use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\ORM\PaginatedList;
 use SilverStripe\CMS\Model\SiteTree;
+use SilverStripe\Core\Config\Config;
+use Toast\IndexedSearch\SearchIndex;
 use SilverStripe\Control\RequestHandler;
 
 class SearchForm extends Form
@@ -58,6 +60,7 @@ class SearchForm extends Form
         $boostClasses = $boostClasses ?: ($this->config()->get('boost_classes') ?: []);
         $rankFields = $rankFields ?: ($this->config()->get('rank_fields') ?: []);
         $disableSubsiteFilterClasses = $this->config()->get('disable_subsite_filter_classes') ?: null;
+        $enableFilters =  Config::inst()->get(SearchIndex::class, 'enable_filters') ?: false;
 
         $request = $this->getRequestHandler()->getRequest();
 
@@ -86,6 +89,11 @@ class SearchForm extends Form
         if ($disableSubsiteFilterClasses) {
             $result = $result
                 ->setDisableSubsiteFilterClasses($disableSubsiteFilterClasses);
+        }
+
+        if ($enableFilters) {
+            $result = $result
+                ->setSearchFilterableFields($this->config()->get('filter_category') ?: []);
         }
 
         $result = $result
