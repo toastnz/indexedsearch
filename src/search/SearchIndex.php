@@ -383,7 +383,7 @@ class SearchIndex
         return $string;
     }
 
-    private function getRawDataFromValues(array $values, array $exclusions = [])
+    private function getRawDataFromValues(array $values, ?array $exclusions = [])
     {
         $output = '';
 
@@ -411,7 +411,7 @@ class SearchIndex
         return implode(' ', $output);
     }
 
-    public function search($query, array $searchClasses = null, array $boostFields = null, array $boostClasses = null, $fuzzy = false, array $filterDataFields = null, array $filters = null, $rankFields = null, $searchScoreSortSequence = null)
+    public function search($query, ?array $searchClasses = null, ?array $boostFields = null, ?array $boostClasses = null, $fuzzy = false, ?array $filterDataFields = null, ?array $filters = null, ?array $rankFields = null, ?array $searchScoreSortSequence = null)
     {
         $searchClasses = $searchClasses ?: $this->getSearchClasses();
         $boostFields = $boostFields ?: $this->getSearchBoostFields();
