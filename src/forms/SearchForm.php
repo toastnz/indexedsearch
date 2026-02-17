@@ -30,7 +30,7 @@ class SearchForm extends Form
         'SearchQuery' => 'Text'
     ];
 
-    public function __construct(RequestHandler $controller = null, $name = 'SearchForm', FieldList $fields = null, FieldList $actions = null)
+    public function __construct(?RequestHandler $controller = null, $name = 'SearchForm', ?FieldList $fields = null, ?FieldList $actions = null)
     {
         if (!$fields) {
             $fields = FieldList::create(
