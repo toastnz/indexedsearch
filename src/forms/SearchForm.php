@@ -2,15 +2,15 @@
 
 namespace Toast\IndexedSearch;
 
-use SilverStripe\Forms\Form;
-use SilverStripe\Forms\FieldList;
-use SilverStripe\Forms\TextField;
-use SilverStripe\Forms\FormAction;
-use SilverStripe\ORM\PaginatedList;
 use SilverStripe\CMS\Model\SiteTree;
-use SilverStripe\Core\Config\Config;
-use Toast\IndexedSearch\SearchIndex;
 use SilverStripe\Control\RequestHandler;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\Form;
+use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\TextField;
+use SilverStripe\Model\List\PaginatedList;
+use Toast\IndexedSearch\SearchIndex;
 
 class SearchForm extends Form
 {
